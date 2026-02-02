@@ -103,7 +103,7 @@ class GameTopBar extends StatelessWidget implements PreferredSizeWidget {
                   color: AppColors.errorFace,
                 ),
                 const SizedBox(width: 8),
-                _HudPill(
+                _CoinPill(
                   icon: PlayfulIcons.diamond,
                   value: '$coins',
                   color: AppColors.yellowFace,
@@ -153,6 +153,95 @@ class _HudPill extends StatelessWidget {
               fontWeight: FontWeight.w900,
               fontSize: 14,
               color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CoinPill extends StatelessWidget {
+  const _CoinPill({
+    required this.icon,
+    required this.value,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF4CC),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  color.withOpacity(0.95),
+                  color.withOpacity(0.7),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              border: Border.all(color: Colors.white.withOpacity(0.9), width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.4),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned(
+                  top: 4,
+                  left: 6,
+                  child: Container(
+                    width: 10,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                ),
+                Icon(icon, color: const Color(0xFF8A5A00), size: 14),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 14,
+                color: Color(0xFF8A5A00),
+              ),
             ),
           ),
         ],

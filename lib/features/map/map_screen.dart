@@ -58,9 +58,22 @@ final List<MapQuest> snakeQuests = List.generate(20, (i) {
   }
 
   // Variety generation logic
-  final style = ProgressNodeStyle.values[i % ProgressNodeStyle.values.length];
-  final shape = (i % 3 == 0) ? NodeShape.roundedSquare : NodeShape.circle;
-  
+  const styleCycle = [
+    ProgressNodeStyle.classic3D,
+    ProgressNodeStyle.glassmorphic,
+    ProgressNodeStyle.neumorphic,
+    ProgressNodeStyle.floatingIsland,
+    ProgressNodeStyle.woody3D,
+    ProgressNodeStyle.fantasyGlow,
+  ];
+  const shapeCycle = [
+    NodeShape.circle,
+    NodeShape.roundedSquare,
+    NodeShape.capsule,
+  ];
+  final style = styleCycle[i % styleCycle.length];
+  final shape = shapeCycle[i % shapeCycle.length];
+
   final colors = [
     AppColors.duoBlue,
     AppColors.duoGreen,
@@ -95,6 +108,7 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   final ScrollController _scrollController = ScrollController();
+  String? _selectedQuestId;
   
   @override
   Widget build(BuildContext context) {
@@ -389,16 +403,9 @@ class _MapScreenState extends State<MapScreen> {
                           return Positioned(
                             left: (300 + pos.dx) - (quest.shape == NodeShape.roundedSquare ? 40 : 48),
                             top: pos.dy - 10,
-                            child: ProgressNodeButton(
-                              progress: quest.progress,
-                              icon: quest.icon ?? Icons.star_rounded,
-                              label: "STEP ${i + 1}",
-                              onPressed: () => _showQuestPreview(quest),
-                              color: quest.color,
-                              size: quest.shape == NodeShape.roundedSquare ? 80 : 90,
-                              style: quest.style,
-                              shape: quest.shape,
-                              status: quest.status,
+                            child: _buildSelectableQuestNode(
+                              quest: quest,
+                              index: i,
                             ),
                           );
                         }),
@@ -520,6 +527,67 @@ class _MapScreenState extends State<MapScreen> {
         ),
       ],
     );
+  }
+
+  Widget _buildSelectableQuestNode({
+    required MapQuest quest,
+    required int index,
+  }) {
+    final bool isSelected = _selectedQuestId == quest.id;
+    final double nodeSize = quest.shape == NodeShape.roundedSquare
+        ? 80
+        : quest.shape == NodeShape.capsule
+            ? 64
+            : 90;
+    final double? nodeWidth = quest.shape == NodeShape.capsule ? 150 : null;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      padding: EdgeInsets.all(isSelected ? 6 : 0),
+      decoration: BoxDecoration(
+        color: isSelected ? Colors.white.withOpacity(0.08) : Colors.transparent,
+        borderRadius: _getSelectionRadius(quest.shape),
+        border: isSelected
+            ? Border.all(color: Colors.white.withOpacity(0.85), width: 2)
+            : null,
+        boxShadow: isSelected
+            ? [
+                BoxShadow(
+                  color: quest.color.withOpacity(0.35),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ]
+            : [],
+      ),
+      child: ProgressNodeButton(
+        progress: quest.progress,
+        icon: quest.icon ?? Icons.star_rounded,
+        text: quest.shape == NodeShape.capsule ? "STEP ${index + 1}" : null,
+        label: quest.shape == NodeShape.capsule ? null : "STEP ${index + 1}",
+        onPressed: () {
+          setState(() => _selectedQuestId = quest.id);
+          _showQuestPreview(quest);
+        },
+        color: quest.color,
+        size: nodeSize,
+        width: nodeWidth,
+        style: quest.style,
+        shape: quest.shape,
+        status: quest.status,
+      ),
+    );
+  }
+
+  BorderRadius _getSelectionRadius(NodeShape shape) {
+    switch (shape) {
+      case NodeShape.circle:
+        return BorderRadius.circular(999);
+      case NodeShape.capsule:
+        return BorderRadius.circular(999);
+      case NodeShape.roundedSquare:
+        return BorderRadius.circular(20);
+    }
   }
 
   double _calculateHorizontalOffset(int index, double amplitude) {
